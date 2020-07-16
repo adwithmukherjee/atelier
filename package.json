@@ -15,7 +15,14 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "wait-on": "^5.1.0"
+    "wait-on": "^5.1.0",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0",
+    "react-redux": "^7.2.0",
+    "materialize-css": "^1.0.0",
+    "http-proxy-middleware": "^1.0.4",
+    "axios": "^0.19.2",
+    "react-router-dom": "^5.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -24,7 +31,6 @@
     "eject": "react-scripts eject",
     "ebuild": "npm run build && node_modules/.bin/build",
     "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\""
-
   },
   "eslintConfig": {
     "extends": "react-app"
