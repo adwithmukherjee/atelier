@@ -1,5 +1,6 @@
 import axios from "axios";
-import { FETCH_USER } from "./types";
+import { FETCH_USER, FETCH_SURVEYS } from "./types";
+
 
 export const fetchUser = () => 
   //making a get request to our backend, to the /api/current_user route
@@ -17,6 +18,8 @@ export const fetchUser = () =>
     //dispatch an action with payload of the api's response
 
   };
+
+
 
 
 //we're only putting the relative path to

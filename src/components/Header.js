@@ -11,6 +11,7 @@ class Header extends Component {
       case false:
         return (
           <li>
+            <Redirect to='/' />
             <a href="/auth/google">Log in with Google</a>
           </li>
         );

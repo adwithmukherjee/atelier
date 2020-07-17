@@ -9,7 +9,7 @@ import * as actions from '../actions'
 
 
 const Dashboard = () => <h2> Dashboard - here go the notes</h2>;
-const Landing = () => <h2> Landing </h2>;
+const Landing = () => <div style = {{textAlign: "center"}}><h1 > Welcome to Atelier! </h1><h3>please login</h3></div>;
 
 class App extends Component{
   //we use class-based so we can access these lifetime cycle methods 
