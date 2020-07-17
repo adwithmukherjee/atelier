@@ -8,7 +8,7 @@ Menu.setApplicationMenu(null);
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
-    height: 600,
+    height: 200,
     show: false,
     frame: false,
     movable: true,
@@ -18,6 +18,7 @@ function createWindow() {
     : `file://${path.join(__dirname, "../build/index.html")}`;
 
   mainWindow.loadURL(startURL);
+
   //app.dock.hide();
   //mainWindow.setAlwaysOnTop(true, "floating");
   //mainWindow.setVisibleOnAllWorkspaces(true);

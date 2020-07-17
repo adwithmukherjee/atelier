@@ -4,14 +4,16 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, Redirect } from "react-router-dom";
 import Header from "./Header";
+import Dashboard from "./Dashboard"
 import { connect } from "react-redux";
 import * as actions from "../actions";
 
-const Dashboard = () => (
-  <h2 style={{ "-webkit-app-region": "drag" }}>
-    Dashboard - here go the notes
-  </h2>
-);
+//const Dashboard = () => (
+ // <h2 style={{ "-webkit-app-region": "drag" }}>
+//    Dashboard - here go the notes
+//  </h2>
+//);
+
 const Landing = () => (
   <div style={{ textAlign: "center" }}>
     <h1> Welcome to Atelier! </h1>
