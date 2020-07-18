@@ -13,6 +13,7 @@
     "electron": "^9.1.0",
     "electron-builder": "^22.7.0",
     "electron-is-dev": "^1.2.0",
+    "electron-localshortcut": "^3.2.1",
     "http-proxy-middleware": "^1.0.4",
     "materialize-css": "^1.0.0",
     "mousetrap": "^1.6.5",

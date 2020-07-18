@@ -7,6 +7,7 @@ const {
   ipcRenderer,
   screen,
 } = require("electron");
+const electronLocalShortcut = require("electron-localshortcut")
 const isDev = require("electron-is-dev");
 const path = require("path");
 const { create } = require("domain");
@@ -87,6 +88,7 @@ app.on("activate", () => {
 
 app.whenReady().then(() => {
   console.log(mainWindow.isMovable());
+  
   globalShortcut.register("CommandOrControl+J", () => {
     console.log("CommandJ is pressed");
     if (BrowserWindow.getAllWindows().length === 0) {

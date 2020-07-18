@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, createRef } from "react";
 import "./dashboard.scss";
 import { HotKeys, GlobalHotKeys } from "react-hotkeys";
 
@@ -28,11 +28,34 @@ class Dashboard extends Component {
       textinput: false,
       hoverIndex: null,
       autoToggle: true,
+      taskListFocus: false, 
     };
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.textBar = createRef();
+    this.taskList = createRef(); 
+
+  }
+
+  /*
+  // FOR HANDLING LOCAL KEY EVENTS. implemented in componentDidMount. Look up the requisite keyCodes. 
+  */
+  handleKeyEvents = (event) => {
+    switch(event.keyCode){
+      case(191): //forward slash
+        console.log("forward slash")
+        if(this.textBar.current){ //focus the text bar (if it exists)
+          this.textBar.current.focus();
+        }
+        break;
+      default: 
+        break;
+      
+    }
   }
 
   componentDidMount() {
+    document.addEventListener("keydown", this.handleKeyEvents)
+
     console.log("mounting");
     ipcRenderer.on("text-input", (event, arg) => {
       console.log(arg);
@@ -70,7 +93,7 @@ class Dashboard extends Component {
   }
 
   render() {
-    const { tasks, pill, textinput, hoverIndex, autoToggle } = this.state;
+    const { tasks, pill, textinput, hoverIndex, autoToggle, taskListFocus } = this.state;
     const togglePill = (index, x, y, toggle) => {
       this.setState({
         ...pill,
@@ -140,7 +163,7 @@ class Dashboard extends Component {
                 <input
                   autoFocus={this.state.autoToggle}
                   type="text"
-                  ref="task"
+                  ref= {this.textBar}
                   placeholder="what's on your mind?"
                 />
               </label>
@@ -156,12 +179,12 @@ class Dashboard extends Component {
                     <input
                       autoFocus={this.state.autoToggle}
                       type="text"
-                      ref="task"
+                      ref={this.textBar}
                       placeholder="what's on your mind?"
                     />
                   </label>
                 </form>
-                <ul>
+                <ul ref = {this.taskList}  >
                   {tasks.map((task, index) => (
                     <li
                       style={{
