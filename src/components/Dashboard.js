@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import "./dashboard.scss";
+const { ipcRenderer } = window.require("electron")
+
+
 
 const taskArray = [
   {
@@ -25,6 +28,7 @@ class Dashboard extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     //  this.handleInput = this.handleInput.bind(this);
   }
+
   handleSubmit(e) {
     e.preventDefault();
     const { tasks } = this.state,
@@ -46,6 +50,11 @@ class Dashboard extends Component {
     );
   }
 
+  
+  showPill(task) {
+    ipcRenderer.send('toggle-pill', task)
+  }
+
   render() {
     const { tasks } = this.state;
     return (
@@ -58,7 +67,7 @@ class Dashboard extends Component {
         </form>
         <ul>
           {tasks.map((task) => (
-            <div className="task" onClick={console.log("hi")}>
+            <div className="task" onClick = {() => this.showPill(task.task)} >
               <li>{`Task: ${task.task} ID: ${task.id}`}</li>
             </div>
           ))}

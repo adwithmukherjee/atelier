@@ -1,46 +1,66 @@
-const { app, BrowserWindow, globalShortcut, Menu } = require("electron");
+const { app, BrowserWindow, globalShortcut, Menu, ipcMain } = require("electron");
 const isDev = require("electron-is-dev");
 const path = require("path");
 const { create } = require("domain");
 
+
 let mainWindow;
+let pillWindow; 
 Menu.setApplicationMenu(null);
+
+
+
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 400,
+    width: 800,
     height: 400,
-    show: false,
+    show: true,
     frame: false,
     movable: true,
+    webPreferences: {nodeIntegration: true}
+    
   });
+  
+  pillWindow = new BrowserWindow({
+    width: 400, 
+    height: 200, 
+    frame: true, 
+    movable: true, 
+    parent: mainWindow,
+    show: false, 
+    webPreferences: {nodeIntegration: true}
+    
+  })
   const startURL = isDev
     ? "http://localhost:3000"
     : `file://${path.join(__dirname, "../build/index.html")}`;
 
-  mainWindow.loadURL(startURL);
+  const pillURL = isDev
+    ? "http://localhost:3000/pill"
+    : `file://${path.join(__dirname, "../build/index.html")}`;
 
-  //app.dock.hide();
-  //mainWindow.setAlwaysOnTop(true, "floating");
-  //mainWindow.setVisibleOnAllWorkspaces(true);
-  //mainWindow.setFullScreenable(true);
-  //mainWindow.setFullScreenable(false);
-  //mainWindow.setFullScreenable(false);
+  mainWindow.loadURL(startURL);
+  pillWindow.loadURL(pillURL)
+
+  
   app.dock.hide();
   mainWindow.once("ready-to-show", () => mainWindow.show());
-  mainWindow.resizable = false;
+  
+  mainWindow.webContents.openDevTools();
+  mainWindow.resizable = true;
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
-  mainWindow.on("swipe", console.log);
-  mainWindow.on("rotate-gesture", (e) => {
-    console.log("rotate-gesture");
-  });
-  // mainWindow.on("swipe", () => {
-  //   mainWindow.setFullScreenable(true);
-  //   console.log("swiped");
-  //   //console.log(e);
-  // });
+
+  pillWindow.on('close', (e) => {
+    e.preventDefault(); 
+    pillWindow.hide();
+  })
+ 
+ 
 }
+
+
 app.on("ready", createWindow);
 
 app.on("window-all-closed", () => {
@@ -86,3 +106,8 @@ app.whenReady().then(() => {
     }
   });
 });
+
+ipcMain.on('toggle-pill', (event, arg) => {
+  pillWindow.show();
+  pillWindow.webContents.send('task', arg); 
+})

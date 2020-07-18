@@ -2,11 +2,12 @@
 
 //if the class exports a component, upper case the first letter
 import React, { Component } from "react";
-import { BrowserRouter, Route, Redirect } from "react-router-dom";
+import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 import Header from "./Header";
 import Dashboard from "./Dashboard";
 import { connect } from "react-redux";
 import * as actions from "../actions";
+import Pill from "./Pill"
 
 //const Dashboard = () => (
 // <h2 style={{ "-webkit-app-region": "drag" }}>
@@ -22,13 +23,12 @@ const Landing = () => (
       "user-select": "none",
     }}
   >
+    <a href="/auth/google">Log in with Google</a>
     {/* <h1> Welcome to Atelier! </h1> */}
     {/* <h3>please login</h3> */}
   </div>
 );
 
-const numbers = [1, 2, 3, 4, 5];
-const listItems = numbers.map((number) => <li>{number}</li>);
 
 class App extends Component {
   //we use class-based so we can access these lifetime cycle methods
@@ -47,13 +47,16 @@ class App extends Component {
           <BrowserRouter
             style={{ "-webkit-app-region": "drag", "user-select": "none" }}
           >
+            <Switch>
             <div
               style={{ "-webkit-app-region": "drag", "user-select": "none" }}
             >
-              <Header />
-              <Route exact path="/" component={Landing} />
-              <Route exact path="/dashboard" component={Dashboard} />
+              
+              {/*<Route exact path="/" component={Landing} />*/} 
+              <Route exact path="/" component={Dashboard} />
+              <Route exact path="/pill" component={Pill} />
             </div>
+            </Switch>
           </BrowserRouter>
         </div>
       </body>

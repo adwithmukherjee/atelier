@@ -11,14 +11,14 @@ class Header extends Component {
       case false:
         return (
           <li>
-            <Redirect to="/" />
+            {/* <Redirect to="/" /> */}
             <a href="/auth/google">Log in with Google</a>
           </li>
         );
       default:
         return (
           <li>
-            <Redirect to="/dashboard" />
+            {/* <Redirect to="/dashboard" />*/ } 
             {/* <a href="/api/logout">Logout</a> */}
           </li>
         );
