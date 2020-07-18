@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom"
+import { Redirect } from "react-router-dom";
 //if logged in, we dont want to display the LOGIN WITH GOOGLE header
 //if not logged in, we do want to show it
 class Header extends Component {
@@ -11,35 +11,34 @@ class Header extends Component {
       case false:
         return (
           <li>
-            <Redirect to='/' />
+            <Redirect to="/" />
             <a href="/auth/google">Log in with Google</a>
           </li>
         );
       default:
         return (
           <li>
-            <Redirect to='/dashboard' />
-            <a href="/api/logout">Logout</a>
+            <Redirect to="/dashboard" />
+            {/* <a href="/api/logout">Logout</a> */}
           </li>
         );
     }
   }
 
-  
-
   render() {
     console.log("header props");
     console.log(this.props);
     return (
-      <nav>
-        <div className="nav-wrapper">
-          <a className="left brand-logo" style={{ marginLeft: 15 }} href="/">
+      // <nav>
+      <div style={{ "-webkit-app-region": "drag", "user-select": "none" }}>
+        {/* className="nav-wrapper" */}
+        {/* <a className="left brand-logo" style={{ marginLeft: 15 }} href="/">
             Atelier
-          </a>
-
-          <ul className="right">{this.renderContent()}</ul>
-        </div>
-      </nav>
+          </a> */}
+        {/* className="right" */}
+        <ul>{this.renderContent()}</ul>
+      </div>
+      // </nav>
     );
   }
 }

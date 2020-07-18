@@ -7,8 +7,8 @@ let mainWindow;
 Menu.setApplicationMenu(null);
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 200,
+    width: 400,
+    height: 400,
     show: false,
     frame: false,
     movable: true,

@@ -4,22 +4,31 @@
 import React, { Component } from "react";
 import { BrowserRouter, Route, Redirect } from "react-router-dom";
 import Header from "./Header";
-import Dashboard from "./Dashboard"
+import Dashboard from "./Dashboard";
 import { connect } from "react-redux";
 import * as actions from "../actions";
 
 //const Dashboard = () => (
- // <h2 style={{ "-webkit-app-region": "drag" }}>
+// <h2 style={{ "-webkit-app-region": "drag" }}>
 //    Dashboard - here go the notes
 //  </h2>
 //);
 
 const Landing = () => (
-  <div style={{ textAlign: "center" }}>
-    <h1> Welcome to Atelier! </h1>
-    <h3>please login</h3>
+  <div
+    style={{
+      textAlign: "center",
+      "-webkit-app-region": "drag",
+      "user-select": "none",
+    }}
+  >
+    {/* <h1> Welcome to Atelier! </h1> */}
+    {/* <h3>please login</h3> */}
   </div>
 );
+
+const numbers = [1, 2, 3, 4, 5];
+const listItems = numbers.map((number) => <li>{number}</li>);
 
 class App extends Component {
   //we use class-based so we can access these lifetime cycle methods
@@ -30,10 +39,17 @@ class App extends Component {
 
   render() {
     return (
-      <body style={{ "-webkit-app-region": "drag" }}>
-        <div className="container" style={{ "-webkit-app-region": "drag" }}>
-          <BrowserRouter>
-            <div>
+      <body style={{ "-webkit-app-region": "drag", "user-select": "none" }}>
+        <div
+          className="container"
+          style={{ "-webkit-app-region": "drag", "user-select": "none" }}
+        >
+          <BrowserRouter
+            style={{ "-webkit-app-region": "drag", "user-select": "none" }}
+          >
+            <div
+              style={{ "-webkit-app-region": "drag", "user-select": "none" }}
+            >
               <Header />
               <Route exact path="/" component={Landing} />
               <Route exact path="/dashboard" component={Dashboard} />
