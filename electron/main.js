@@ -92,6 +92,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow(false);
     } else {
+      mainWindow.show();
       app.dock.hide();
       mainWindow.setAlwaysOnTop(true, "floating");
       mainWindow.setVisibleOnAllWorkspaces(true);
@@ -109,6 +110,7 @@ app.whenReady().then(() => {
       createWindow(true);
       mainWindow.webContents.send("text-input", true);
     } else {
+      mainWindow.show();
       mainWindow.setAlwaysOnTop(true, "floating");
       mainWindow.setVisibleOnAllWorkspaces(true);
       mainWindow.focus(); // focus the window up front on the active screen
@@ -122,8 +124,8 @@ app.whenReady().then(() => {
     console.log("escaped");
     if (BrowserWindow.getAllWindows().length === 0) {
     } else {
-      mainWindow.close();
-      mainWindow.webContents.send("text-input", false);
+      mainWindow.hide();
+      //mainWindow.webContents.send("text-input", false);
     }
   });
 });
