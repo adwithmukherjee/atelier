@@ -7,7 +7,7 @@ import Header from "./Header";
 import Dashboard from "./Dashboard";
 import { connect } from "react-redux";
 import * as actions from "../actions";
-import Pill from "./Pill"
+import Pill from "./Pill";
 
 //const Dashboard = () => (
 // <h2 style={{ "-webkit-app-region": "drag" }}>
@@ -29,7 +29,6 @@ const Landing = () => (
   </div>
 );
 
-
 class App extends Component {
   //we use class-based so we can access these lifetime cycle methods
   //it is here we make our initial ajax requests.
@@ -39,23 +38,15 @@ class App extends Component {
 
   render() {
     return (
-      <body style={{ "-webkit-app-region": "drag", "user-select": "none" }}>
-        <div
-          className="container"
-          style={{ "-webkit-app-region": "drag", "user-select": "none" }}
-        >
-          <BrowserRouter
-            style={{ "-webkit-app-region": "drag", "user-select": "none" }}
-          >
+      <body style={{ WebkitAppRegion: "drag", userSelect: "none", margin: 0 }}>
+        <div>
+          <BrowserRouter>
             <Switch>
-            <div
-              style={{ "-webkit-app-region": "drag", "user-select": "none" }}
-            >
-              
-              {/*<Route exact path="/" component={Landing} />*/} 
-              <Route exact path="/" component={Dashboard} />
-              <Route exact path="/pill" component={Pill} />
-            </div>
+              <div>
+                {/*<Route exact path="/" component={Landing} />*/}
+                <Route exact path="/" component={Dashboard} />
+                <Route exact path="/pill" component={Pill} />
+              </div>
             </Switch>
           </BrowserRouter>
         </div>
