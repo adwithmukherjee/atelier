@@ -50,7 +50,7 @@ function createWindow(textinput) {
   mainWindow.loadURL(startURL);
   pillWindow.loadURL(pillURL);
 
-  app.dock.hide();
+  app.dock.hide()
   mainWindow.once("ready-to-show", () => mainWindow.show());
 
   mainWindow.webContents.openDevTools();
@@ -120,6 +120,7 @@ app.whenReady().then(() => {
       mainWindow.webContents.send("text-input", true);
     }
   });
+
   globalShortcut.register("Esc", () => {
     console.log("escaped");
     if (BrowserWindow.getAllWindows().length === 0) {
