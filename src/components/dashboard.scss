@@ -24,3 +24,15 @@
   //overflow: hidden;
   outline: 0;
 }
+
+.input {
+  //border-bottom-style: groove;
+}
+
+.input :focus {
+  background-color: blue;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
