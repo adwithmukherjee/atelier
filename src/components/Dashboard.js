@@ -2,8 +2,8 @@ import React, { Component, createRef } from "react";
 import "./dashboard.scss";
 import { HotKeys, GlobalHotKeys } from "react-hotkeys";
 import { connect } from "react-redux";
-import { findByLabelText } from "@testing-library/react";
 const ReactDOM = require("react-dom");
+
 
 const { ipcMain, ipcRenderer } = window.require("electron");
 
@@ -102,7 +102,7 @@ class Dashboard extends Component {
               this.togglePill(this.state.hoverIndex, 400, 100, true);
             }
           } else {
-            this.togglePill(this.state.hoverIndex, 400, 200, false);
+            this.togglePill(this.state.hoverIndex, 800, 300, false);
           }
         }
         break;
@@ -254,10 +254,8 @@ class Dashboard extends Component {
                 <ul ref={this.taskList}>
                   {tasks.map((task, index) => (
                     <li
-                      className="entry"
                       style={{
-                        backgroundColor:
-                          hoverIndex == index ? "#5A4F5E" : "#211B23",
+                        backgroundColor: hoverIndex == index ? "red" : "white",
                       }}
                       onMouseEnter={() => {
                         this.setState({ ...hoverIndex, hoverIndex: index });
@@ -267,32 +265,13 @@ class Dashboard extends Component {
                         //this.removeItem(task.id);
                         this.togglePill(index, 400, 100, true);
                       }}
-                    >
-                      <p
-                        style={{
-                          display: "flex",
-                          color: "#FCF9FD ",
-                          verticalAlign: "center",
-                          lineHeight: "36px",
-                          //  justifyContent: "center",
-                          //alignItems: "center",
-                          marginLeft: 52,
-                          marginTop: 0,
-                        }}
-                      >
-                        {`${task.task}`}
-                      </p>
-                    </li>
+                    >{`Task: ${task.task} ID: ${task.id}`}</li>
                   ))}
                 </ul>
               </div>
             ) : (
               <div
-                style={{
-                  WebkitAppRegion: "drag",
-                  userSelect: "none",
-                  color: "#FCF9FD",
-                }}
+                style={{ WebkitAppRegion: "drag", userSelect: "none" }}
                 onClick={() => {
                   this.togglePill(0, 800, 300, false);
                 }}
@@ -326,7 +305,8 @@ class Dashboard extends Component {
 //     highlighted ? "rgba(147, 134, 108, 0.6)" : "transparent"};
 // `;
 
-function mapStateToProps({ tasks }) {
-  return { tasks };
+
+function mapStateToProps({tasks}){
+  return { tasks }
 }
 export default connect(mapStateToProps)(Dashboard);

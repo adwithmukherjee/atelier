@@ -19,8 +19,8 @@ Menu.setApplicationMenu(null);
 
 function createWindow(textinput) {
   mainWindow = new BrowserWindow({
-    width: 400,
-    height: 200,
+    width: 800,
+    height: 300,
     show: true,
     frame: false,
     movable: true,
