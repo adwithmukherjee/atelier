@@ -96,7 +96,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow(false);
     } else {
-      mainWindow.setPosition(width - 400, 100);
+      mainWindow.setPosition(width - mainWindow.getBounds().width - 100, 50);
       mainWindow.show();
       app.dock.hide();
       mainWindow.setAlwaysOnTop(true, "floating");
