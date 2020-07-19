@@ -19,6 +19,7 @@ Menu.setApplicationMenu(null);
 
 function createWindow(textinput) {
   mainWindow = new BrowserWindow({
+
     width: 800,
     height: 300,
     show: true,
@@ -88,12 +89,15 @@ app.on("activate", () => {
 
 app.whenReady().then(() => {
   console.log(mainWindow.isMovable());
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
+  console.log(width, height);
   globalShortcut.register("CommandOrControl+J", () => {
     console.log("CommandJ is pressed");
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow(false);
     } else {
+      mainWindow.setPosition(width - 400, 100);
       mainWindow.show();
       app.dock.hide();
       mainWindow.setAlwaysOnTop(true, "floating");
@@ -111,6 +115,7 @@ app.whenReady().then(() => {
       createWindow(true);
       mainWindow.webContents.send("text-input", true);
     } else {
+      mainWindow.center();
       mainWindow.show();
       mainWindow.setAlwaysOnTop(true, "floating");
       mainWindow.setVisibleOnAllWorkspaces(true);
@@ -137,13 +142,17 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) {
     } else {
       mainWindow.hide();
-      mainWindow.setSize(400, 100);
-      mainWindow.webContents.send("escaping", true);
+      //.hide
+      //mainWindow.setSize(400, 100);
+      //mainWindow.webContents.send("escaping", true);
       //mainWindow.webContents.send("text-input", false);
     }
   });
 });
 ipcMain.on("toggle-pill", (event, arg) => {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+
+  console.log(width, height);
   console.log(arg);
   mainWindow.setSize(arg.x, arg.y);
 });
