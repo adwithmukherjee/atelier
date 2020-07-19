@@ -6,7 +6,6 @@ import { findByLabelText } from "@testing-library/react";
 import styled from "styled-components";
 const ReactDOM = require("react-dom");
 
-
 const { ipcMain, ipcRenderer } = window.require("electron");
 
 const taskArray = [
@@ -130,7 +129,6 @@ class Dashboard extends Component {
               mainView.y,
               false
             );
-
           }
         }
         break;
@@ -335,7 +333,8 @@ class Dashboard extends Component {
                   {tasks.map((task, index) => (
                     <li
                       style={{
-                        backgroundColor: hoverIndex == index ? "red" : "white",
+                        backgroundColor:
+                          hoverIndex == index ? "#5A4F5E" : "#211B23",
                       }}
                       onMouseEnter={() => {
                         this.setState({ ...hoverIndex, hoverIndex: index });
@@ -356,14 +355,13 @@ class Dashboard extends Component {
                           //alignItems: "center",
                           marginLeft: 26 * 1.5,
                           marginRight: 0,
-
+                          marginBottom: 0,
                           marginTop: 0,
                         }}
                       >
                         {`${task.task}`}
                       </p>
                     </li>
-
                   ))}
                 </ul>
               </div>
@@ -384,7 +382,6 @@ class Dashboard extends Component {
                   fontSize: 18,
                   // lineHeight: 60,
                 }}
-
                 onClick={() => {
                   //this opens the pill view on click
                   this.togglePill(0, mainView.x, mainView.y, false);
@@ -417,8 +414,7 @@ class Dashboard extends Component {
 //     highlighted ? "rgba(147, 134, 108, 0.6)" : "transparent"};
 // `;
 
-
-function mapStateToProps({tasks}){
-  return { tasks }
+function mapStateToProps({ tasks }) {
+  return { tasks };
 }
 export default connect(mapStateToProps)(Dashboard);
