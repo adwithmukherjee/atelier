@@ -47,9 +47,10 @@ class Dashboard extends Component {
       //   task: "",
       //   id: "",
       // },
-      pill: { toggle: true, id: 0 },
+      pill: { toggle: true, taskName: "" },
       textinput: false,
       hoverIndex: null,
+      hoverId: null, 
       autoToggle: true,
       taskListFocus: false,
       input: "",
@@ -62,7 +63,7 @@ class Dashboard extends Component {
   togglePill = (index, x, y, toggle) => {
     this.setState({
       ...this.state.pill,
-      pill: { toggle: toggle, id: index },
+      pill: { toggle: toggle, id: index,}
     });
     ipcRenderer.send("toggle-pill", { x: x, y: y });
   };
@@ -147,7 +148,7 @@ class Dashboard extends Component {
       case 16: //shift, but should be E
         
           
-          this.removeItem(this.state.hoverIndex);
+          this.removeItem(this.state.hoverId);
           
         
         break;
@@ -200,7 +201,7 @@ class Dashboard extends Component {
       //use this to be able to remove the task you were working on and move on to
       //the next one in pill view GLOBALLY
       if (this.state.pill.toggle) {
-        this.removeItem(this.state.hoverIndex);
+        this.removeItem(this.state.hoverId);
       }
       if (this.state.hoverIndex == this.state.tasks.length) {
         console.log("too big");
@@ -283,6 +284,7 @@ class Dashboard extends Component {
       pill,
       textinput,
       hoverIndex,
+      hoverId,
       autoToggle,
       taskListFocus,
     } = this.state;
@@ -368,17 +370,18 @@ class Dashboard extends Component {
                   {tasks.map((task, index) => (
                     <li
                       style={{
-                        backgroundColor: hoverIndex == task._id ? "#5A4F5E" : "#211B23",
+                        backgroundColor: hoverIndex === index ? "#5A4F5E" : "#211B23",
 
                       }}
                       onMouseEnter={() => {
                         this.setState({ hoverIndex: index });
-                        
+                        console.log(this.state.hoverIndex)
                         
                       }}
                       onMouseOver = {() => {
-                        this.setState({hoverIndex: task._id})
-                        
+
+                        this.setState({hoverId: task._id})
+                        console.log(this.state.hoverId)
                       }}
                       
                       onClick={() => {
