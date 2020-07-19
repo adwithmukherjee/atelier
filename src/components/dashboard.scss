@@ -11,8 +11,22 @@
 .fill {
   height: 100vh;
   width: 100vw;
-  //background-color: red;
+  background-color: #211b23;
+  //EEDFF3
   margin: 0px;
-  overflow: hidden;
+  overflow-y: scroll;
+  //overflow: hidden;
   outline: 0;
+}
+
+.input {
+  //border-bottom-style: groove;
+}
+
+.input :focus {
+  background-color: blue;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }

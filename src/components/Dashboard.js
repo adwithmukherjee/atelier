@@ -2,9 +2,13 @@ import React, { Component, createRef } from "react";
 import "./dashboard.scss";
 import { HotKeys, GlobalHotKeys } from "react-hotkeys";
 import { connect } from "react-redux";
-import * as actions from "../actions";
-const ReactDOM = require("react-dom");
 
+import * as actions from "../actions";
+
+import { findByLabelText } from "@testing-library/react";
+import styled from "styled-components";
+
+const ReactDOM = require("react-dom");
 
 const { ipcMain, ipcRenderer } = window.require("electron");
 
@@ -18,6 +22,21 @@ const taskArray = [
     id: "slfkuh2q34098",
   },
 ];
+
+const Input = styled.input`
+  borderbottomwidth: 0;
+  bordercolor: #211b23;
+  color: #fcf9fd;
+  marginleft: 26;
+  marginright: 26;
+  verticalalign: center;
+  boxshadow: none;
+  underlinecolor: transparent;
+`;
+
+const pillView = { x: 324, y: 84 };
+const inputView = { x: 700, y: 60 };
+const mainView = { x: 600, y: 250 };
 
 class Dashboard extends Component {
   constructor() {
@@ -40,7 +59,6 @@ class Dashboard extends Component {
     this.textBar = createRef();
     this.taskList = createRef();
   }
-
   togglePill = (index, x, y, toggle) => {
     this.setState({
       ...this.state.pill,
@@ -69,13 +87,13 @@ class Dashboard extends Component {
   */
   handleKeyEvents = (event) => {
     switch (event.keyCode) {
-      case 191: //forward slash
-        console.log("forward slash");
-        if (this.textBar.current) {
-          //focus the text bar (if it exists)
-          this.textBar.current.focus();
-        }
-        break;
+      // case 74: //forward slash
+      //   console.log("forward slash");
+      //   if (this.textBar.current) {
+      //     //focus the text bar (if it exists)
+      //     this.textBar.current.focus();
+      //   }
+      //   break;
       case 40: //down
         if (!this.state.pill.toggle) {
           this.setState({
@@ -108,10 +126,21 @@ class Dashboard extends Component {
         if (this.state.tasks.length > 0) {
           if (!this.state.pill.toggle) {
             if (this.state.hoverIndex != null) {
-              this.togglePill(this.state.hoverIndex, 400, 100, true);
+              //this toggle the input only view (command P)
+              this.togglePill(
+                this.state.hoverIndex,
+                pillView.x,
+                pillView.y,
+                true
+              );
             }
           } else {
-            this.togglePill(this.state.hoverIndex, 800, 300, false);
+            this.togglePill(
+              this.state.hoverIndex,
+              mainView.x,
+              mainView.y,
+              false
+            );
           }
         }
         break;
@@ -148,12 +177,19 @@ class Dashboard extends Component {
       //or make it a pill with the first task
       console.log(arg);
       if (arg) {
-        ipcRenderer.send("toggle-pill", { x: 500, y: 500 });
+        //sets the size for the pill
+        ipcRenderer.send("toggle-pill", { x: inputView.x, y: inputView.y });
       } else {
-        this.setState({
-          ...this.state.pill,
-          pill: { toggle: true, id: 0 },
-        });
+        if (this.state.tasks.length == 0) {
+          this.togglePill(0, mainView.x, mainView.y, false);
+        } else {
+          this.togglePill(
+            this.state.hoverIndex == null ? 0 : this.state.hoverIndex,
+            pillView.x,
+            pillView.y,
+            true
+          );
+        }
       }
       this.setState({
         textinput: arg,
@@ -165,6 +201,20 @@ class Dashboard extends Component {
       //the next one in pill view GLOBALLY
       if (this.state.pill.toggle) {
         this.removeItem(this.state.hoverIndex);
+      }
+      if (this.state.hoverIndex == this.state.tasks.length) {
+        console.log("too big");
+        this.setState({
+          ...this.state.hoverIndex,
+          hoverIndex: 0,
+        });
+        this.setState({
+          ...this.state.pill,
+          pill: { toggle: true, id: this.state.hoverIndex },
+        });
+      }
+      if (this.state.tasks.length == 0) {
+        ipcRenderer.send("hide-pill", null);
       }
     });
     ipcRenderer.on("escaping", (event, arg) => {
@@ -189,6 +239,7 @@ class Dashboard extends Component {
       name = this.textBar.current.value,
       id = new Date().getTime();
 
+  if (this.textBar.current.value) {
     this.props.submitTask({name})
     this.textBar.current.value = "";
     this.props.fetchTasks(); 
@@ -202,7 +253,8 @@ class Dashboard extends Component {
         this.textBar.current.value = "";
       }
     );
-      
+  }
+
 
     if (this.state.textinput) {
       ipcRenderer.send("hide-pill", null);
@@ -211,15 +263,6 @@ class Dashboard extends Component {
 
   handleChange(event) {
     this.setState({ input: event.target.value });
-  }
-  checkActive() {
-    if (document.getActiveElement) {
-      console.log(document.getActiveElement);
-      console.log(document.getActiveElement.tagName);
-      if (document.getActiveElement.tagName === "INPUT") {
-        // console.log("hi");
-      }
-    }
   }
 
   onListLoad = () => {
@@ -243,7 +286,6 @@ class Dashboard extends Component {
       autoToggle,
       taskListFocus,
     } = this.state;
-    setInterval(this.checkActive, 300);
 
     //this.checkActive();
 
@@ -253,40 +295,81 @@ class Dashboard extends Component {
         className="fill"
       >
         {textinput ? (
-          <div style={{ WebkitAppRegion: "drag", userSelect: "none" }}>
-            <form onSubmit={this.handleSubmit}>
-              <label>
-                <input
-                  autoFocus={this.state.autoToggle}
-                  type="text"
-                  ref={this.textBar}
-                  // value={this.textBar.value}
-                  // onChange={this.handleChange}
-                  placeholder="what's on your mind?"
-                />
-              </label>
+          <div>
+            <form
+              onSubmit={this.handleSubmit}
+              style={{
+                marginLeft: "26px",
+                marginRight: "26px",
+                marginTop: "6px",
+                //verticalAlign: "center",
+                WebkitAppRegion: "drag",
+                userSelect: "none",
+              }}
+            >
+              <input
+                autoFocus={this.state.autoToggle}
+                type="text"
+                style={{
+                  borderBottomWidth: 0,
+                  borderColor: "#211B23",
+                  color: "#FCF9FD ",
+                  fontSize: 24,
+                  boxShadow: "none",
+                  underlineColor: "transparent",
+                }}
+                ref={this.textBar}
+                placeholder="what's on your mind?"
+              />
               {/* <button type="submit">Submit</button> */}
             </form>
           </div>
         ) : (
           <div>
             {!pill.toggle ? (
-              <div style={{ WebkitAppRegion: "drag", userSelect: "none" }}>
+              <div
+                className="fill"
+                style={{
+                  WebkitAppRegion: "drag",
+                  userSelect: "none",
+                  overflowX: "hidden",
+                  width: mainView.x,
+                }}
+              >
                 <form onSubmit={this.handleSubmit}>
                   <label>
                     <input
                       //  autoFocus={this.state.autoToggle}
                       type="text"
                       ref={this.textBar}
+                      className="input"
                       placeholder="what's on your mind?"
+                      style={{
+                        overflowX: "hidden",
+
+                        borderBottomWidth: 0,
+                        borderColor: "#211B23",
+                        color: "#FCF9FD ",
+                        marginLeft: 26,
+                        marginRight: 0,
+                        marginTop: 0,
+                        marginBottom: 0,
+                        borderBottomWidth: 0,
+                        width: mainView.x,
+                        verticalAlign: "center",
+                        boxShadow: "none",
+                        underlineColor: "transparent",
+                      }}
                     />
                   </label>
                 </form>
-                <ul ref={this.taskList} componentdidmount = {this.onListLoad} >
+
+                <ul style={{ marginTop: 0 }} ref={this.taskList} componentdidmount = {this.onListLoad} >
                   {tasks.map((task, index) => (
                     <li
                       style={{
-                        backgroundColor: hoverIndex == task._id ? "red" : "white",
+                        backgroundColor: hoverIndex == task._id ? "#5A4F5E" : "#211B23",
+
                       }}
                       onMouseEnter={() => {
                         this.setState({ hoverIndex: index });
@@ -300,24 +383,62 @@ class Dashboard extends Component {
                       
                       onClick={() => {
                         //this.removeItem(task.id);
-                        this.togglePill(index, 400, 100, true);
+                        this.togglePill(index, pillView.x, pillView.y, true);
                       }}
-                    >{`Task: ${task.name} ID: ${task._id}`}</li>
+
+                   
+
+                    >
+                      <p
+                        style={{
+                          display: "flex",
+                          color: "#FCF9FD ",
+                          verticalAlign: "center",
+                          lineHeight: "36px",
+                          //  justifyContent: "center",
+                          //alignItems: "center",
+                          marginLeft: 26 * 1.5,
+                          marginRight: 0,
+                          marginBottom: 0,
+                          marginTop: 0,
+                        }}
+                      >
+                        {`${task.name}`}
+                      </p>
+                    </li>
+
                   ))}
                 </ul>
               </div>
             ) : (
               <div
-                style={{ WebkitAppRegion: "drag", userSelect: "none" }}
+                className="fill"
+                style={{
+                  WebkitAppRegion: "drag",
+                  userSelect: "none",
+                  color: "#FCF9FD",
+                  display: "flex",
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  //verticalAlign: "center",
+                  textAlign: "center",
+                  borderWidth: 8,
+                  fontSize: 18,
+                  // lineHeight: 60,
+                }}
                 onClick={() => {
-                  this.togglePill(0, 800, 300, false);
+                  //this opens the pill view on click
+                  this.togglePill(0, mainView.x, mainView.y, false);
                 }}
               >
-                <ul>
-                  {pill.id < this.state.tasks.length && pill.id != null
-                    ? `Task: ${tasks[pill.id].name} ID: ${pill.id}`
-                    : ``}
-                </ul>
+
+               
+
+                {pill.id < this.state.tasks.length && pill.id != null
+                  ? `${tasks[pill.id].name}`
+                  : ``}
+
               </div>
             )}
           </div>
@@ -343,7 +464,9 @@ class Dashboard extends Component {
 // `;
 
 
+
 function mapStateToProps({auth, tasks}){
   return { listOfTasks: tasks, auth }
+
 }
 export default connect(mapStateToProps, actions)(Dashboard);
