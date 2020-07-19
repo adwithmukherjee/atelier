@@ -132,7 +132,7 @@ app.whenReady().then(() => {
     mainWindow.webContents.send("tabbed", true);
   });
 
-  globalShortcut.register("Esc", () => {
+  globalShortcut.register("CommandOrControl+Esc", () => {
     console.log("escaped");
     if (BrowserWindow.getAllWindows().length === 0) {
     } else {
