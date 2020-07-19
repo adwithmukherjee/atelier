@@ -1,5 +1,5 @@
 import axios from "axios";
-import { FETCH_USER, FETCH_TASKS } from "./types";
+import { FETCH_USER, FETCH_TASKS, DELETE_TASK } from "./types";
 
 
 export const fetchUser = () => async (dispatch) => {
@@ -30,9 +30,10 @@ export const submitTask = (values) => async (dispatch) => {
 }
 
 export const deleteTask = (values) => async(dispatch) => {
-  console.log("values")
-  console.log(values)
-  await axios.post("/tasks/delete", values)
+  console.log("in actions")
+  const res = await axios.post("/tasks/delete", values)
+  console.log(res)
+  dispatch({type: DELETE_TASK, payload: values})
 
 }
 

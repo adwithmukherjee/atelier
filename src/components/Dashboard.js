@@ -129,23 +129,17 @@ class Dashboard extends Component {
   };
 
   componentWillReceiveProps(){
-   
+    this.props.fetchTasks();
     this.setState({
-      //tasks: this.props.listOfTasks
+      tasks: this.props.listOfTasks
     })
   }
 
-  setContinuousUpdate() {
-    console.log("ticking")
-    this.props.fetchTasks(); 
-    this.interval = setInterval(() => this.setState({ tasks: this.props.listOfTasks }), 1000);
-  }
 
 
   componentDidMount() {
-    
-    this.setContinuousUpdate();
 
+  
     document.addEventListener("keyup", this.handleKeyEvents);
 
     
@@ -227,13 +221,18 @@ class Dashboard extends Component {
     }
   }
 
-  
+  onListLoad = () => {
+    
+    this.props.fetchTasks()
+    this.setState({tasks: this.props.listOfTasks})
+
+  }
 
   
 
   render() {
     
-    this.props.fetchTasks()
+    
     
     const {
       tasks,
@@ -282,7 +281,7 @@ class Dashboard extends Component {
                     />
                   </label>
                 </form>
-                <ul ref={this.taskList} >
+                <ul ref={this.taskList} componentdidmount = {this.onListLoad} >
                   {tasks.map((task, index) => (
                     <li
                       style={{
@@ -315,7 +314,7 @@ class Dashboard extends Component {
               >
                 <ul>
                   {pill.id < this.state.tasks.length && pill.id != null
-                    ? `Task: ${tasks[pill.id].name} ID: ${pill._id}`
+                    ? `Task: ${tasks[pill.id].name} ID: ${pill.id}`
                     : ``}
                 </ul>
               </div>
