@@ -29,7 +29,7 @@ function createWindow(textinput) {
 
   pillWindow = new BrowserWindow({
     width: 400,
-    height: 200,
+    height: 800,
     frame: true,
     movable: true,
     parent: mainWindow,
@@ -37,7 +37,7 @@ function createWindow(textinput) {
     webPreferences: { nodeIntegration: true },
   });
   const startURL = isDev
-    ? "http://localhost:3000"
+    ? "http://localhost:3000/"
     : `file://${path.join(__dirname, "../build/index.html")}`;
 
   const pillURL = isDev

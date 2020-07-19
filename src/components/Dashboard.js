@@ -1,7 +1,9 @@
 import React, { Component, createRef } from "react";
 import "./dashboard.scss";
 import { HotKeys, GlobalHotKeys } from "react-hotkeys";
+import { connect } from "react-redux";
 const ReactDOM = require("react-dom");
+
 
 const { ipcMain, ipcRenderer } = window.require("electron");
 
@@ -303,4 +305,8 @@ class Dashboard extends Component {
 //     highlighted ? "rgba(147, 134, 108, 0.6)" : "transparent"};
 // `;
 
-export default Dashboard;
+
+function mapStateToProps({tasks}){
+  return { tasks }
+}
+export default connect(mapStateToProps)(Dashboard);

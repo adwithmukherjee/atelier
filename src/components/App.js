@@ -34,6 +34,8 @@ class App extends Component {
   //it is here we make our initial ajax requests.
   componentDidMount() {
     this.props.fetchUser();
+    this.props.submitTask({name: 'do the dishes'})
+    console.log('submitting')
   }
 
   render() {
@@ -43,8 +45,8 @@ class App extends Component {
           <BrowserRouter>
             <Switch>
               <div>
-                {/*<Route exact path="/" component={Landing} />*/}
-                <Route exact path="/" component={Dashboard} />
+                {<Route exact path="/" component={Landing} />}
+                <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/pill" component={Pill} />
               </div>
             </Switch>

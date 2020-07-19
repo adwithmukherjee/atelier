@@ -2,7 +2,7 @@
 
 module.exports = function (app) {
     app.use(
-        ["/api/*", "/auth/google"], 
+        ["/api/*", "/auth/google", "/tasks"], 
         createProxyMiddleware({
             target: "http://localhost:5000"
         })

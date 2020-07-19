@@ -23,7 +23,11 @@ export const fetchTasks = () => async (dispatch) => {
 }
 
 export const submitTask = (values) => async (dispatch) => {
+  
   await axios.post("/tasks", values)
+  console.log("Here are values:")
+  console.log(values)
+  
 }
 
 //we're only putting the relative path to
