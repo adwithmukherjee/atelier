@@ -33,9 +33,12 @@ class App extends Component {
   //we use class-based so we can access these lifetime cycle methods
   //it is here we make our initial ajax requests.
   componentDidMount() {
+    console.log("fetching tasks")
+    
     this.props.fetchUser();
-    this.props.submitTask({name: 'do the dishes'})
-    console.log('submitting')
+    this.props.fetchTasks();
+    console.log(this.props.tasks)
+     
   }
 
   render() {
@@ -59,7 +62,13 @@ class App extends Component {
 
 //connect is used to connect REact and Redux.
 //basically adds actions to the props of App class
-export default connect(null, actions)(App);
+
+function mapStateToProps( { tasks }) {
+  return { tasks }
+}
+  
+
+export default connect(mapStateToProps, actions)(App);
 
 //https://stackoverflow.com/questions/39769513/react-form-to-submit-object-which-is-then-pushed-to-array
 //https://reactjs.org/docs/forms.html

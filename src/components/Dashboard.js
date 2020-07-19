@@ -2,6 +2,7 @@ import React, { Component, createRef } from "react";
 import "./dashboard.scss";
 import { HotKeys, GlobalHotKeys } from "react-hotkeys";
 import { connect } from "react-redux";
+import * as actions from "../actions";
 const ReactDOM = require("react-dom");
 
 
@@ -9,11 +10,11 @@ const { ipcMain, ipcRenderer } = window.require("electron");
 
 const taskArray = [
   {
-    task: "email adwith",
+    name: "email adwith",
     id: "fsdlkvha894",
   },
   {
-    task: "write back to sameer on slack",
+    name: "write back to sameer on slack",
     id: "slfkuh2q34098",
   },
 ];
@@ -22,7 +23,7 @@ class Dashboard extends Component {
   constructor() {
     super();
     this.state = {
-      tasks: taskArray,
+      tasks: [],
       // newTask: {
       //   task: "",
       //   id: "",
@@ -33,6 +34,7 @@ class Dashboard extends Component {
       autoToggle: true,
       taskListFocus: false,
       input: "",
+      
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.textBar = createRef();
@@ -48,11 +50,18 @@ class Dashboard extends Component {
   };
 
   removeItem(id) {
-    //remove from array
-    this.state.tasks.splice(id, 1);
+
+
+   
+    this.props.deleteTask({_id:id})
+    this.props.fetchTasks();
+
+    const newTasks = this.state.tasks.filter((element) => element._id !== id)
+    //const tasks = this.props.listOfTasks.length === 0 ? newTasks : this.props.listOfTasks
+    
 
     //let newList = this.state.tasks.filter((item) => item.id !== id);
-    this.setState({ ...this.state.tasks, tasks: this.state.tasks });
+    this.setState({ tasks: newTasks });
   }
 
   /*
@@ -107,16 +116,11 @@ class Dashboard extends Component {
         }
         break;
       case 16: //shift, but should be E
-        if (this.state.hoverIndex >= 0) {
+        
+          console.log(this.state.hoverIndex)
           this.removeItem(this.state.hoverIndex);
-          if (this.state.hoverIndex == this.state.tasks.length) {
-            console.log("too big");
-            this.setState({
-              ...this.state.hoverIndex,
-              hoverIndex: 0,
-            });
-          }
-        }
+          
+        
         break;
 
       default:
@@ -124,10 +128,27 @@ class Dashboard extends Component {
     }
   };
 
+  componentWillReceiveProps(){
+   
+    this.setState({
+      //tasks: this.props.listOfTasks
+    })
+  }
+
+  setContinuousUpdate() {
+    console.log("ticking")
+    this.props.fetchTasks(); 
+    this.interval = setInterval(() => this.setState({ tasks: this.props.listOfTasks }), 1000);
+  }
+
+
   componentDidMount() {
+    
+    this.setContinuousUpdate();
+
     document.addEventListener("keyup", this.handleKeyEvents);
 
-    console.log("mounting");
+    
     ipcRenderer.on("text-input", (event, arg) => {
       //using this to trigger command J or command P and either resize to fit text input
       //or make it a pill with the first task
@@ -166,25 +187,28 @@ class Dashboard extends Component {
     }
   }
 
+
+
   handleSubmit(e) {
     e.preventDefault();
     const { tasks } = this.state,
-      task = this.textBar.current.value,
+      name = this.textBar.current.value,
       id = new Date().getTime();
+
+    this.props.submitTask({name})
+    this.textBar.current.value = "";
+    this.props.fetchTasks(); 
+
     this.setState(
       {
-        tasks: [
-          ...tasks,
-          {
-            task,
-            id,
-          },
-        ],
+        tasks: [...tasks, {name, id}]
       },
       () => {
         this.textBar.current.value = "";
       }
     );
+      
+
     if (this.state.textinput) {
       ipcRenderer.send("hide-pill", null);
     }
@@ -203,7 +227,14 @@ class Dashboard extends Component {
     }
   }
 
+  
+
+  
+
   render() {
+    
+    this.props.fetchTasks()
+    
     const {
       tasks,
       pill,
@@ -251,21 +282,27 @@ class Dashboard extends Component {
                     />
                   </label>
                 </form>
-                <ul ref={this.taskList}>
+                <ul ref={this.taskList} >
                   {tasks.map((task, index) => (
                     <li
                       style={{
-                        backgroundColor: hoverIndex == index ? "red" : "white",
+                        backgroundColor: hoverIndex == task._id ? "red" : "white",
                       }}
                       onMouseEnter={() => {
-                        this.setState({ ...hoverIndex, hoverIndex: index });
-                        console.log(index);
+                        this.setState({ hoverIndex: index });
+                        
+                        
                       }}
+                      onMouseOver = {() => {
+                        this.setState({hoverIndex: task._id})
+                        
+                      }}
+                      
                       onClick={() => {
                         //this.removeItem(task.id);
                         this.togglePill(index, 400, 100, true);
                       }}
-                    >{`Task: ${task.task} ID: ${task.id}`}</li>
+                    >{`Task: ${task.name} ID: ${task._id}`}</li>
                   ))}
                 </ul>
               </div>
@@ -278,7 +315,7 @@ class Dashboard extends Component {
               >
                 <ul>
                   {pill.id < this.state.tasks.length && pill.id != null
-                    ? `Task: ${tasks[pill.id].task} ID: ${pill.id}`
+                    ? `Task: ${tasks[pill.id].name} ID: ${pill._id}`
                     : ``}
                 </ul>
               </div>
@@ -306,7 +343,7 @@ class Dashboard extends Component {
 // `;
 
 
-function mapStateToProps({tasks}){
-  return { tasks }
+function mapStateToProps({auth, tasks}){
+  return { listOfTasks: tasks, auth }
 }
-export default connect(mapStateToProps)(Dashboard);
+export default connect(mapStateToProps, actions)(Dashboard);
