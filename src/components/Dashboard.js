@@ -57,11 +57,11 @@ class Dashboard extends Component {
     this.props.fetchTasks();
 
     const newTasks = this.state.tasks.filter((element) => element._id !== id)
-    //const tasks = this.props.listOfTasks.length === 0 ? newTasks : this.props.listOfTasks
+    const tasks = this.props.listOfTasks.length === 0 ? newTasks : this.props.listOfTasks
     
 
     //let newList = this.state.tasks.filter((item) => item.id !== id);
-    this.setState({ tasks: newTasks });
+    this.setState({ tasks });
   }
 
   /*
@@ -193,9 +193,10 @@ class Dashboard extends Component {
     this.textBar.current.value = "";
     this.props.fetchTasks(); 
 
+    //const newTasks = this.props.listOfTasks ? this.props.listOfTasks : [...tasks, { name, id}]
     this.setState(
       {
-        tasks: [...tasks, {name, id}]
+        tasks: this.props.listOfTasks
       },
       () => {
         this.textBar.current.value = "";
