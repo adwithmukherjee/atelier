@@ -7,7 +7,7 @@ const {
   ipcRenderer,
   screen,
 } = require("electron");
-const electronLocalShortcut = require("electron-localshortcut")
+//const electronLocalShortcut = require("electron-localshortcut")
 const isDev = require("electron-is-dev");
 const path = require("path");
 const { create } = require("domain");
@@ -51,7 +51,7 @@ function createWindow(textinput) {
   mainWindow.loadURL(startURL);
   pillWindow.loadURL(pillURL);
 
-  app.dock.hide()
+  app.dock.hide();
   mainWindow.once("ready-to-show", () => mainWindow.show());
 
   mainWindow.webContents.openDevTools();
@@ -88,7 +88,7 @@ app.on("activate", () => {
 
 app.whenReady().then(() => {
   console.log(mainWindow.isMovable());
-  
+
   globalShortcut.register("CommandOrControl+J", () => {
     console.log("CommandJ is pressed");
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -101,7 +101,6 @@ app.whenReady().then(() => {
       mainWindow.focus(); // focus the window up front on the active screen
       mainWindow.setVisibleOnAllWorkspaces(false);
       mainWindow.setFullScreenable(false);
-
       mainWindow.webContents.send("text-input", false);
     }
   });
@@ -116,11 +115,21 @@ app.whenReady().then(() => {
       mainWindow.setAlwaysOnTop(true, "floating");
       mainWindow.setVisibleOnAllWorkspaces(true);
       mainWindow.focus(); // focus the window up front on the active screen
-      //this hack of true/false is so that window doesn't persist across desktops
       mainWindow.setVisibleOnAllWorkspaces(false);
       mainWindow.setFullScreenable(false);
       mainWindow.webContents.send("text-input", true);
     }
+  });
+
+  globalShortcut.register("CommandOrControl+E", () => {
+    mainWindow.show();
+    mainWindow.setAlwaysOnTop(true, "floating");
+    mainWindow.setVisibleOnAllWorkspaces(true);
+    mainWindow.focus(); // focus the window up front on the active screen
+    mainWindow.setVisibleOnAllWorkspaces(false);
+    mainWindow.setFullScreenable(false);
+    console.log("tab press");
+    mainWindow.webContents.send("tabbed", true);
   });
 
   globalShortcut.register("Esc", () => {
@@ -128,6 +137,8 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) {
     } else {
       mainWindow.hide();
+      mainWindow.setSize(400, 100);
+      mainWindow.webContents.send("escaping", true);
       //mainWindow.webContents.send("text-input", false);
     }
   });
@@ -135,4 +146,8 @@ app.whenReady().then(() => {
 ipcMain.on("toggle-pill", (event, arg) => {
   console.log(arg);
   mainWindow.setSize(arg.x, arg.y);
+});
+
+ipcMain.on("hide-pill", (event, arg) => {
+  mainWindow.hide();
 });

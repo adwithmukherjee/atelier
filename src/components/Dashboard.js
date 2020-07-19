@@ -1,6 +1,7 @@
 import React, { Component, createRef } from "react";
 import "./dashboard.scss";
 import { HotKeys, GlobalHotKeys } from "react-hotkeys";
+const ReactDOM = require("react-dom");
 
 const { ipcMain, ipcRenderer } = window.require("electron");
 
@@ -28,47 +29,145 @@ class Dashboard extends Component {
       textinput: false,
       hoverIndex: null,
       autoToggle: true,
-      taskListFocus: false, 
+      taskListFocus: false,
+      input: "",
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.textBar = createRef();
-    this.taskList = createRef(); 
+    this.taskList = createRef();
+  }
 
+  togglePill = (index, x, y, toggle) => {
+    this.setState({
+      ...this.state.pill,
+      pill: { toggle: toggle, id: index },
+    });
+    ipcRenderer.send("toggle-pill", { x: x, y: y });
+  };
+
+  removeItem(id) {
+    //remove from array
+    this.state.tasks.splice(id, 1);
+
+    //let newList = this.state.tasks.filter((item) => item.id !== id);
+    this.setState({ ...this.state.tasks, tasks: this.state.tasks });
   }
 
   /*
   // FOR HANDLING LOCAL KEY EVENTS. implemented in componentDidMount. Look up the requisite keyCodes. 
   */
   handleKeyEvents = (event) => {
-    switch(event.keyCode){
-      case(191): //forward slash
-        console.log("forward slash")
-        if(this.textBar.current){ //focus the text bar (if it exists)
+    switch (event.keyCode) {
+      case 191: //forward slash
+        console.log("forward slash");
+        if (this.textBar.current) {
+          //focus the text bar (if it exists)
           this.textBar.current.focus();
         }
         break;
-      default: 
+      case 40: //down
+        if (!this.state.pill.toggle) {
+          this.setState({
+            ...this.state.hoverIndex,
+            hoverIndex:
+              this.state.hoverIndex == null
+                ? 0
+                : this.state.hoverIndex >= this.state.tasks.length - 1
+                ? this.state.tasks.length - 1
+                : this.state.hoverIndex + 1,
+          });
+        }
+        //console.log(hoverIndex)
+        // console.log("Move down hotkey called!", this.state.hoverIndex);
         break;
-      
+      case 38: //up
+        if (!this.state.pill.toggle) {
+          this.setState({
+            ...this.state.hoverIndex,
+            hoverIndex:
+              this.state.hoverIndex == null || this.state.hoverIndex <= 0
+                ? 0
+                : this.state.hoverIndex - 1,
+          });
+          //console.log(hoverIndex)
+          console.log("Move up hotkey called!", this.state.hoverIndex);
+        }
+        break;
+      case 9: //tab
+        if (this.state.tasks.length > 0) {
+          if (!this.state.pill.toggle) {
+            if (this.state.hoverIndex != null) {
+              this.togglePill(this.state.hoverIndex, 400, 100, true);
+            }
+          } else {
+            this.togglePill(this.state.hoverIndex, 800, 300, false);
+          }
+        }
+        break;
+      case 16: //shift, but should be E
+        if (this.state.hoverIndex >= 0) {
+          this.removeItem(this.state.hoverIndex);
+          if (this.state.hoverIndex == this.state.tasks.length) {
+            console.log("too big");
+            this.setState({
+              ...this.state.hoverIndex,
+              hoverIndex: 0,
+            });
+          }
+        }
+        break;
+
+      default:
+        break;
     }
-  }
+  };
 
   componentDidMount() {
-    document.addEventListener("keydown", this.handleKeyEvents)
+    document.addEventListener("keyup", this.handleKeyEvents);
 
     console.log("mounting");
     ipcRenderer.on("text-input", (event, arg) => {
+      //using this to trigger command J or command P and either resize to fit text input
+      //or make it a pill with the first task
       console.log(arg);
+      if (arg) {
+        ipcRenderer.send("toggle-pill", { x: 500, y: 500 });
+      } else {
+        this.setState({
+          ...this.state.pill,
+          pill: { toggle: true, id: 0 },
+        });
+      }
       this.setState({
         textinput: arg,
       });
     });
+
+    ipcRenderer.on("tabbed", (event, arg) => {
+      //use this to be able to remove the task you were working on and move on to
+      //the next one in pill view GLOBALLY
+      if (this.state.pill.toggle) {
+        this.removeItem(this.state.hoverIndex);
+      }
+    });
+    ipcRenderer.on("escaping", (event, arg) => {
+      //use this to be able to remove the task you were working on and move on to
+      //the next one in pill view GLOBALLY
+      console.log("leaving");
+      this.setState({
+        ...this.state.pill,
+        pill: { toggle: true, id: null },
+      });
+    });
+    if (document.activeElement === ReactDOM.findDOMNode(this.textBar.current)) {
+      console.log("true");
+    }
   }
 
   handleSubmit(e) {
     e.preventDefault();
     const { tasks } = this.state,
-      task = this.refs.task.value,
+      task = this.textBar.current.value,
       id = new Date().getTime();
     this.setState(
       {
@@ -81,80 +180,44 @@ class Dashboard extends Component {
         ],
       },
       () => {
-        this.refs.task.value = "";
+        this.textBar.current.value = "";
       }
     );
+    if (this.state.textinput) {
+      ipcRenderer.send("hide-pill", null);
+    }
   }
 
-  removeItem(id) {
-    //remove from array
-    let newList = this.state.tasks.filter((item) => item.id !== id);
-    this.setState({ tasks: newList });
+  handleChange(event) {
+    this.setState({ input: event.target.value });
+  }
+  checkActive() {
+    if (document.getActiveElement) {
+      console.log(document.getActiveElement);
+      console.log(document.getActiveElement.tagName);
+      if (document.getActiveElement.tagName === "INPUT") {
+        // console.log("hi");
+      }
+    }
   }
 
   render() {
-    const { tasks, pill, textinput, hoverIndex, autoToggle, taskListFocus } = this.state;
-    const togglePill = (index, x, y, toggle) => {
-      this.setState({
-        ...pill,
-        pill: { toggle: toggle, id: index },
-      });
-      ipcRenderer.send("toggle-pill", { x: x, y: y });
-    };
+    const {
+      tasks,
+      pill,
+      textinput,
+      hoverIndex,
+      autoToggle,
+      taskListFocus,
+    } = this.state;
+    setInterval(this.checkActive, 300);
 
-    const keyMap = {
-      deleteNode: "del",
-      moveDown: "down",
-      moveUp: "up",
-      pillView: "enter",
-      type: "/", //THIS IS SUPPOSED TO FOCUS ON TEXT INPUT BUT DOESN'T
-    };
-    const handlers = {
-      moveUp: (event) => {
-        this.setState({
-          ...hoverIndex,
-          hoverIndex:
-            this.state.hoverIndex == null || this.state.hoverIndex <= 0
-              ? 0
-              : this.state.hoverIndex - 1,
-        });
-        //console.log(hoverIndex)
-        console.log("Move up hotkey called!", this.state.hoverIndex);
-      },
-      moveDown: (event) => {
-        this.setState({
-          ...hoverIndex,
-          hoverIndex:
-            this.state.hoverIndex == null
-              ? 0
-              : this.state.hoverIndex >= this.state.tasks.length - 1
-              ? this.state.tasks.length - 1
-              : this.state.hoverIndex + 1,
-        });
-        //console.log(hoverIndex)
-        console.log("Move down hotkey called!", this.state.hoverIndex);
-      },
-      pillView: (event) => {
-        if (hoverIndex) {
-          togglePill(hoverIndex, 400, 100, true);
-        }
-      },
-      type: (event) => {
-        console.log("fired");
-        this.setState({
-          ...autoToggle,
-          autoToggle: true,
-        });
-      },
-    };
+    //this.checkActive();
 
     return (
-      <HotKeys
-        //focused={false}
-        //attach={window}
-        keyMap={keyMap}
-        handlers={handlers}
-        className="hotkey"
+      <div
+        style={{ WebkitAppRegion: "drag", userSelect: "none", margin: 0 }}
+        className="fill"
       >
         {textinput ? (
           <div style={{ WebkitAppRegion: "drag", userSelect: "none" }}>
@@ -163,7 +226,9 @@ class Dashboard extends Component {
                 <input
                   autoFocus={this.state.autoToggle}
                   type="text"
-                  ref= {this.textBar}
+                  ref={this.textBar}
+                  // value={this.textBar.value}
+                  // onChange={this.handleChange}
                   placeholder="what's on your mind?"
                 />
               </label>
@@ -177,14 +242,14 @@ class Dashboard extends Component {
                 <form onSubmit={this.handleSubmit}>
                   <label>
                     <input
-                      autoFocus={this.state.autoToggle}
+                      //  autoFocus={this.state.autoToggle}
                       type="text"
                       ref={this.textBar}
                       placeholder="what's on your mind?"
                     />
                   </label>
                 </form>
-                <ul ref = {this.taskList}  >
+                <ul ref={this.taskList}>
                   {tasks.map((task, index) => (
                     <li
                       style={{
@@ -196,7 +261,7 @@ class Dashboard extends Component {
                       }}
                       onClick={() => {
                         //this.removeItem(task.id);
-                        togglePill(index, 400, 100, true);
+                        this.togglePill(index, 400, 100, true);
                       }}
                     >{`Task: ${task.task} ID: ${task.id}`}</li>
                   ))}
@@ -205,17 +270,20 @@ class Dashboard extends Component {
             ) : (
               <div
                 style={{ WebkitAppRegion: "drag", userSelect: "none" }}
-                className="task"
                 onClick={() => {
-                  togglePill(0, 800, 300, false);
+                  this.togglePill(0, 800, 300, false);
                 }}
               >
-                <ul>{`Task: ${tasks[pill.id].task} ID: ${pill.id}`}</ul>
+                <ul>
+                  {pill.id < this.state.tasks.length && pill.id != null
+                    ? `Task: ${tasks[pill.id].task} ID: ${pill.id}`
+                    : ``}
+                </ul>
               </div>
             )}
           </div>
         )}
-      </HotKeys>
+      </div>
     );
   }
 }
