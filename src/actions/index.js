@@ -1,5 +1,5 @@
 import axios from "axios";
-import { FETCH_USER, FETCH_TASKS } from "./types";
+import { FETCH_USER, FETCH_TASKS, DELETE_TASK } from "./types";
 
 
 export const fetchUser = () => async (dispatch) => {
@@ -11,23 +11,30 @@ export const fetchUser = () => async (dispatch) => {
   //this allows us to wait until the get function is asynchronously completed
   
     const res = await axios.get("/api/current_user")
-    dispatch({type: FETCH_USER, payload: res.data })
+    dispatch({type: FETCH_USER, payload: res.data }) 
     //dispatch an action with payload of the api's response
 
 };
 
 
-export const fetchTasks = () => async (dispatch) => {
-  const res = await axios.get("/tasks")
+export const fetchTasks = () => async (dispatch) => { 
+
+  const res = await axios.get("/tasks/get")
   dispatch({type: FETCH_TASKS, payload: res.data})
 }
 
 export const submitTask = (values) => async (dispatch) => {
   
-  await axios.post("/tasks", values)
-  console.log("Here are values:")
-  console.log(values)
+  await axios.post("/tasks/add", values)
+
+}
+
+export const deleteTask = (values) => async(dispatch) => {
   
+  await axios.post("/tasks/delete", values)
+ 
+  dispatch({type: DELETE_TASK, payload: values})
+
 }
 
 //we're only putting the relative path to
