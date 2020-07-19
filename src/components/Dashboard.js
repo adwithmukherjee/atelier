@@ -117,7 +117,7 @@ class Dashboard extends Component {
         break;
       case 16: //shift, but should be E
         
-          console.log(this.state.hoverIndex)
+          
           this.removeItem(this.state.hoverIndex);
           
         

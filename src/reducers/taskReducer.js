@@ -6,12 +6,10 @@ export default function (state = [],action){
         case FETCH_TASKS: 
             return action.payload;
         case DELETE_TASK: 
-            console.log("delete tasks:")
-            console.log(action.payload)
-            const newTasks = state.filter((element) => element._id !== action.payload._id)
-            console.log(newTasks)
-            return newTasks;
         
+            const newTasks = state.filter((element) => element._id !== action.payload._id)
+
+            return newTasks;
         default: 
             
             return state

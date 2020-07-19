@@ -30,9 +30,9 @@ export const submitTask = (values) => async (dispatch) => {
 }
 
 export const deleteTask = (values) => async(dispatch) => {
-  console.log("in actions")
-  const res = await axios.post("/tasks/delete", values)
-  console.log(res)
+  
+  await axios.post("/tasks/delete", values)
+ 
   dispatch({type: DELETE_TASK, payload: values})
 
 }
