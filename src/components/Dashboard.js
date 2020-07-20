@@ -2,6 +2,7 @@ import React, { Component, createRef } from "react";
 import "./dashboard.scss";
 import { HotKeys, GlobalHotKeys } from "react-hotkeys";
 import { connect } from "react-redux";
+import arrow from "./arrow.png";
 
 import * as actions from "../actions";
 
@@ -50,11 +51,10 @@ class Dashboard extends Component {
       pill: { toggle: true, taskName: "" },
       textinput: false,
       hoverIndex: null,
-      hoverId: null, 
+      hoverId: null,
       autoToggle: true,
       taskListFocus: false,
       input: "",
-      
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.textBar = createRef();
@@ -63,21 +63,18 @@ class Dashboard extends Component {
   togglePill = (index, x, y, toggle) => {
     this.setState({
       ...this.state.pill,
-      pill: { toggle: toggle, id: index,}
+      pill: { toggle: toggle, id: index },
     });
     ipcRenderer.send("toggle-pill", { x: x, y: y });
   };
 
   removeItem(id) {
-
-
-   
-    this.props.deleteTask({_id:id})
+    this.props.deleteTask({ _id: id });
     this.props.fetchTasks();
 
-    const newTasks = this.state.tasks.filter((element) => element._id !== id)
-    const tasks = this.props.listOfTasks.length === 0 ? newTasks : this.props.listOfTasks
-    
+    const newTasks = this.state.tasks.filter((element) => element._id !== id);
+    const tasks =
+      this.props.listOfTasks.length === 0 ? newTasks : this.props.listOfTasks;
 
     //let newList = this.state.tasks.filter((item) => item.id !== id);
     this.setState({ tasks });
@@ -95,15 +92,27 @@ class Dashboard extends Component {
       //     this.textBar.current.focus();
       //   }
       //   break;
+      /*
       case 40: //down
         if (!this.state.pill.toggle) {
+          this.setState({
+            ...this.state.hoverId,
+
+            hoverId:
+              this.state.hoverIndex == null
+                ? 0 //if null set to 0
+                : this.state.hoverIndex >= this.state.tasks.length - 1 //if not set
+                ? 0
+                : this.state.tasks[this.state.hoverIndex + 1]._id,
+          });
+
           this.setState({
             ...this.state.hoverIndex,
             hoverIndex:
               this.state.hoverIndex == null
+                ? 0 //if null set to 0
+                : this.state.hoverIndex >= this.state.tasks.length - 1 //if not set
                 ? 0
-                : this.state.hoverIndex >= this.state.tasks.length - 1
-                ? this.state.tasks.length - 1
                 : this.state.hoverIndex + 1,
           });
         }
@@ -113,6 +122,14 @@ class Dashboard extends Component {
       case 38: //up
         if (!this.state.pill.toggle) {
           this.setState({
+            ...this.state.hoverId,
+            hoverId:
+              this.state.hoverIndex == null || this.state.hoverIndex <= 0
+                ? 0
+                : this.state.tasks[this.state.hoverIndex - 1]._id,
+          });
+
+          this.setState({
             ...this.state.hoverIndex,
             hoverIndex:
               this.state.hoverIndex == null || this.state.hoverIndex <= 0
@@ -120,14 +137,17 @@ class Dashboard extends Component {
                 : this.state.hoverIndex - 1,
           });
           //console.log(hoverIndex)
+          //                        console.log(this.state.hoverId);
+
           console.log("Move up hotkey called!", this.state.hoverIndex);
         }
         break;
+        */
       case 9: //tab
         if (this.state.tasks.length > 0) {
           if (!this.state.pill.toggle) {
             if (this.state.hoverIndex != null) {
-              //this toggle the input only view (command P)
+              //this toggle the pill view
               this.togglePill(
                 this.state.hoverIndex,
                 pillView.x,
@@ -136,21 +156,46 @@ class Dashboard extends Component {
               );
             }
           } else {
-            this.togglePill(
-              this.state.hoverIndex,
-              mainView.x,
-              mainView.y,
-              false
-            );
+            //if the in pill view use tab to go to the next card
+            if (this.state.hoverIndex >= this.state.tasks.length - 1) {
+              this.togglePill(0, pillView.x, pillView.y, true);
+              this.setState({
+                ...this.state.hoverIndex,
+                hoverIndex: 0,
+              });
+            } else {
+              this.togglePill(
+                this.state.hoverIndex + 1,
+                pillView.x,
+                pillView.y,
+                true
+              );
+              this.setState({
+                ...this.state.hoverIndex,
+                hoverIndex: this.state.hoverIndex + 1,
+              });
+            }
           }
         }
         break;
       case 16: //shift, but should be E
-        
-          
-          this.removeItem(this.state.hoverId);
-          
-        
+        this.setState({
+          ...this.state.hoverId,
+
+          hoverId:
+            this.state.hoverIndex == null
+              ? 0 //if null set to 0
+              : this.state.hoverIndex >= this.state.tasks.length - 1 ||
+                this.state.hoverIndex <= 0 //if not set
+              ? 0
+              : this.state.tasks[this.state.hoverIndex + 1]._id,
+        });
+
+        this.removeItem(this.state.hoverId);
+
+        if (this.state.tasks.length == 0 && this.state.pillView.toggle) {
+          ipcRenderer.send("hide-pill", null);
+        }
         break;
 
       default:
@@ -158,21 +203,16 @@ class Dashboard extends Component {
     }
   };
 
-  componentWillReceiveProps(){
+  componentWillReceiveProps() {
     this.props.fetchTasks();
     this.setState({
-      tasks: this.props.listOfTasks
-    })
+      tasks: this.props.listOfTasks,
+    });
   }
 
-
-
   componentDidMount() {
-
-  
     document.addEventListener("keyup", this.handleKeyEvents);
 
-    
     ipcRenderer.on("text-input", (event, arg) => {
       //using this to trigger command J or command P and either resize to fit text input
       //or make it a pill with the first task
@@ -197,27 +237,27 @@ class Dashboard extends Component {
       });
     });
 
-    ipcRenderer.on("tabbed", (event, arg) => {
-      //use this to be able to remove the task you were working on and move on to
-      //the next one in pill view GLOBALLY
-      if (this.state.pill.toggle) {
-        this.removeItem(this.state.hoverId);
-      }
-      if (this.state.hoverIndex == this.state.tasks.length) {
-        console.log("too big");
-        this.setState({
-          ...this.state.hoverIndex,
-          hoverIndex: 0,
-        });
-        this.setState({
-          ...this.state.pill,
-          pill: { toggle: true, id: this.state.hoverIndex },
-        });
-      }
-      if (this.state.tasks.length == 0) {
-        ipcRenderer.send("hide-pill", null);
-      }
-    });
+    // ipcRenderer.on("tabbed", (event, arg) => {
+    //   //use this to be able to remove the task you were working on and move on to
+    //   //the next one in pill view GLOBALLY
+    //   if (this.state.pill.toggle) {
+    //     this.removeItem(this.state.hoverId);
+    //   }
+    //   if (this.state.hoverIndex == this.state.tasks.length) {
+    //     console.log("too big");
+    //     this.setState({
+    //       ...this.state.hoverIndex,
+    //       hoverIndex: 0,
+    //     });
+    //     this.setState({
+    //       ...this.state.pill,
+    //       pill: { toggle: true, id: this.state.hoverIndex },
+    //     });
+    //   }
+    //   if (this.state.tasks.length == 0) {
+    //     ipcRenderer.send("hide-pill", null);
+    //   }
+    // });
     ipcRenderer.on("escaping", (event, arg) => {
       //use this to be able to remove the task you were working on and move on to
       //the next one in pill view GLOBALLY
@@ -232,30 +272,27 @@ class Dashboard extends Component {
     }
   }
 
-
-
   handleSubmit(e) {
     e.preventDefault();
     const { tasks } = this.state,
       name = this.textBar.current.value,
       id = new Date().getTime();
 
-  if (this.textBar.current.value) {
-    this.props.submitTask({name})
-    this.textBar.current.value = "";
-    this.props.fetchTasks(); 
+    if (this.textBar.current.value) {
+      this.props.submitTask({ name });
+      this.textBar.current.value = "";
+      this.props.fetchTasks();
 
-    //const newTasks = this.props.listOfTasks ? this.props.listOfTasks : [...tasks, { name, id}]
-    this.setState(
-      {
-        tasks: this.props.listOfTasks
-      },
-      () => {
-        this.textBar.current.value = "";
-      }
-    );
-  }
-
+      //const newTasks = this.props.listOfTasks ? this.props.listOfTasks : [...tasks, { name, id}]
+      this.setState(
+        {
+          tasks: this.props.listOfTasks,
+        },
+        () => {
+          this.textBar.current.value = "";
+        }
+      );
+    }
 
     if (this.state.textinput) {
       ipcRenderer.send("hide-pill", null);
@@ -267,18 +304,11 @@ class Dashboard extends Component {
   }
 
   onListLoad = () => {
-    
-    this.props.fetchTasks()
-    this.setState({tasks: this.props.listOfTasks})
-
-  }
-
-  
+    this.props.fetchTasks();
+    this.setState({ tasks: this.props.listOfTasks });
+  };
 
   render() {
-    
-    
-    
     const {
       tasks,
       pill,
@@ -366,31 +396,37 @@ class Dashboard extends Component {
                   </label>
                 </form>
 
-                <ul style={{ marginTop: 0 }} ref={this.taskList} componentdidmount = {this.onListLoad} >
+                <ul
+                  style={{ marginTop: 0 }}
+                  ref={this.taskList}
+                  componentdidmount={this.onListLoad}
+                >
                   {tasks.map((task, index) => (
                     <li
                       style={{
-                        backgroundColor: hoverIndex === index ? "#5A4F5E" : "#211B23",
-
+                        backgroundColor:
+                          hoverIndex === index ? "#5A4F5E" : "#211B23",
                       }}
                       onMouseEnter={() => {
-                        this.setState({ hoverIndex: index });
-                        console.log(this.state.hoverIndex)
-                        
+                        this.setState({
+                          ...this.state.hoverIndex,
+                          hoverIndex: index,
+                        });
+                        console.log(index);
                       }}
-                      onMouseOver = {() => {
-
-                        this.setState({hoverId: task._id})
-                        console.log(this.state.hoverId)
+                      onMouseOver={() => {
+                        // this.setState({ hoverIndex: index });
+                        // console.log(this.state.hoverIndex);
+                        this.setState({
+                          ...this.state.hoverId,
+                          hoverId: task._id,
+                        });
+                        console.log(this.state.hoverId);
                       }}
-                      
                       onClick={() => {
                         //this.removeItem(task.id);
                         this.togglePill(index, pillView.x, pillView.y, true);
                       }}
-
-                   
-
                     >
                       <p
                         style={{
@@ -409,7 +445,6 @@ class Dashboard extends Component {
                         {`${task.name}`}
                       </p>
                     </li>
-
                   ))}
                 </ul>
               </div>
@@ -430,18 +465,18 @@ class Dashboard extends Component {
                   fontSize: 18,
                   // lineHeight: 60,
                 }}
-                onClick={() => {
-                  //this opens the pill view on click
-                  this.togglePill(0, mainView.x, mainView.y, false);
-                }}
               >
-
-               
-
                 {pill.id < this.state.tasks.length && pill.id != null
                   ? `${tasks[pill.id].name}`
                   : ``}
-
+                <img
+                  onClick={() => {
+                    //this opens the pill view on click
+                    this.togglePill(0, mainView.x, mainView.y, false);
+                  }}
+                  className="arrow"
+                  src={arrow}
+                ></img>
               </div>
             )}
           </div>
@@ -466,10 +501,7 @@ class Dashboard extends Component {
 //     highlighted ? "rgba(147, 134, 108, 0.6)" : "transparent"};
 // `;
 
-
-
-function mapStateToProps({auth, tasks}){
-  return { listOfTasks: tasks, auth }
-
+function mapStateToProps({ auth, tasks }) {
+  return { listOfTasks: tasks, auth };
 }
 export default connect(mapStateToProps, actions)(Dashboard);
